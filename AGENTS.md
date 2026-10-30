@@ -4,7 +4,25 @@ Streaming Availability Service. An in-memory Go HTTP service between the transco
 
 Module path: `github.com/LoyalMinion/api-streaming-availability`.
 
-Repository layout and process layout are not decided in this file.
+## Layout
+
+| Path | Purpose |
+|---|---|
+| `cmd/api-streaming-availability/` | Entry point. Builds the logger and config, wires the packages, and runs the server. |
+| `internal/config/` | Reads settings from the environment into `Config`. |
+| `internal/server/` | Owns `http.Server`: listening, and draining in-flight requests on shutdown. |
+| `internal/httpapi/` | Routes, handlers, and request and response types. Owns the wire format. |
+| `internal/store/` | The in-memory store in [`docs/architecture.md`](docs/architecture.md). Added with ingest. |
+| `docs/` | Design notes. |
+| `.tool-versions`, `go.mod` | The Go version. Keep them in step. |
+| `Makefile` | `check` and `test`, run locally and in CI. |
+
+- `main` only wires. It reads config, builds each dependency, and passes it to a constructor.
+- Only `internal/config` reads environment variables.
+- Imports point inward: `main` imports `config`, `server`, and `httpapi`. `httpapi` imports `store`. `server` does not import `httpapi`, and `store` does not import `httpapi` or `net/http`.
+- Store types carry no JSON tags. `httpapi` converts them to response types.
+- Add a package for a responsibility, not for one function.
+- Whether metrics get their own listener is not decided.
 
 ## Constraints
 
@@ -73,9 +91,8 @@ Read the skill that fits the task before editing:
 ## Verification
 
 ```bash
-gofmt -l .
-go test ./...
-go test -race ./...
+make check
+make test
 ```
 
-When a benchmark exists, also run `go test -bench=. ./...`.
+`make check` runs `gofmt` and `go vet`. `make test` runs `go test ./...` and `go test -race ./...`. Also run `go test -bench=. ./...` when a change touches code a benchmark covers.
