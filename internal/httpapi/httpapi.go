@@ -6,26 +6,45 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // API serves the HTTP routes.
 type API struct {
-	logger  *slog.Logger
-	started time.Time
-	now     func() time.Time
+	logger   *slog.Logger
+	started  time.Time
+	now      func() time.Time
+	requests *prometheus.HistogramVec
+	reg      *prometheus.Registry
 }
 
 // New returns an API that reports uptime since started, read from now.
 func New(logger *slog.Logger, started time.Time, now func() time.Time) *API {
-	return &API{logger: logger, started: started, now: now}
+	reg := prometheus.NewRegistry()
+	requests := prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "http_request_duration_seconds",
+		Help:    "Duration of HTTP requests, labeled by the matched route pattern.",
+		Buckets: prometheus.ExponentialBuckets(0.0001, 2, 16),
+	}, []string{"pattern"})
+	reg.MustRegister(requests)
+
+	return &API{logger: logger, started: started, now: now, requests: requests, reg: reg}
 }
 
 // Handler returns the routes served by a.
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", a.health)
+	mux.Handle("GET /metrics", promhttp.HandlerFor(a.reg, promhttp.HandlerOpts{}))
 
-	return mux
+	return promhttp.InstrumentHandlerDuration(a.requests, mux, promhttp.WithLabelFromRequest("pattern", func(r *http.Request) string {
+		if r.Pattern == "" {
+			return "unmatched"
+		}
+		return r.Pattern
+	}))
 }
 
 func (a *API) health(w http.ResponseWriter, _ *http.Request) {

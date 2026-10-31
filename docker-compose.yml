@@ -2,6 +2,34 @@ services:
   api:
     build: .
     ports:
-      - "8080:8080"
+      - "8080"
     environment:
       PORT: "8080"
+
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    ports:
+      - "9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus:/prometheus
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:13.3.0
+    ports:
+      - "3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus:
+  grafana:
