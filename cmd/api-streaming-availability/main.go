@@ -15,8 +15,11 @@ import (
 	"github.com/LoyalMinion/api-streaming-availability/internal/server"
 )
 
+var revision = "dev"
+
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger.Info("start", "revision", revision)
 
 	if err := run(logger); err != nil {
 		logger.Error("run", "err", err)
