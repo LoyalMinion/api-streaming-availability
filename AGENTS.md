@@ -17,8 +17,7 @@ Module path: `github.com/LoyalMinion/api-streaming-availability`.
 | `.tool-versions`, `go.mod` | The Go version. Keep them in step. |
 | `Makefile` | `check` and `test`, run locally and in CI. |
 | `Dockerfile`, `docker-compose.yml` | Local image, Prometheus, and Grafana. Host ports are assigned by Docker. |
-| `prometheus/prometheus.yml` | Scrapes `GET /metrics` from the local API. The series are stored in a Compose volume. |
-| `grafana/` | Prometheus datasource for the local Grafana. Dashboards are configured there, not in this repo. |
+| `prometheus/` | Local scrape config and the Grafana datasource. The series are stored in a Compose volume. Dashboards are configured in Grafana, not in this repo. |
 | `.github/workflows/ci.yml` | Pull requests run `make check` and `make test`. `main` then calls the Render deploy hook. |
 | `render.yaml` | The Render web service. Auto-deploy is off. |
 
