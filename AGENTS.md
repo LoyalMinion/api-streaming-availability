@@ -16,6 +16,7 @@ Module path: `github.com/LoyalMinion/api-streaming-availability`.
 | `docs/` | Design notes. |
 | `.tool-versions`, `go.mod` | The Go version. Keep them in step. |
 | `Makefile` | `check` and `test`, run locally and in CI. |
+| `Dockerfile`, `docker-compose.yml` | Local image. A static binary on a non-root base. |
 
 - `main` only wires. It reads config, builds each dependency, and passes it to a constructor.
 - Only `internal/config` reads environment variables.
@@ -37,6 +38,7 @@ Module path: `github.com/LoyalMinion/api-streaming-availability`.
 ## Coding rules
 
 - Each change is one concern, on a short branch with a meaningful name.
+- Delete a feature branch after its pull request merges into main. When another open pull request uses that branch as its base, merge without deleting it, retarget the other pull request to main, and then delete the branch.
 - Follow the patterns already in a file unless asked to refactor. When unsure, check a neighbour.
 - Only include changes the task needs.
 - Code is the source of truth. When docs and code disagree, trust the code and flag the drift.

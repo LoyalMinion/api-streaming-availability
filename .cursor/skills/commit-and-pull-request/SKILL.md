@@ -33,6 +33,7 @@ Use this format for the branch, the commit message, and the pull request. The pu
 - Body: a few short paragraphs, with bullet points where a list is clearer than a paragraph. Lead with the reason. Include a Slack or decision link only when one was actually used. One or two sentences on how it was tested. If nothing was run, say so, for example "No runtime tests; this is markdown only."
 - Do not add a git trailer. There is no ticket key for this repo.
 - Do not add "Made with Cursor". It is not relevant to the work. If a tool appends that line, remove it before the pull request is opened.
+- Delete the head branch after the pull request merges into main. When another open pull request uses that branch as its base, leave the branch until that pull request is retargeted to main. Deleting the base first closes the other pull request.
 
 ```
 agent-rules
