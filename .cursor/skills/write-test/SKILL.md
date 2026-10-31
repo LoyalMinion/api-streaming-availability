@@ -17,9 +17,9 @@ description: >-
 
 - Package is the external `_test` package.
 - Call `t.Parallel()` on the test and on each `t.Run` when the test does not share mutable state that would race. Do not decide by whether a neighbouring test calls it. A case that shares one store with another case does not call `t.Parallel()`.
-- One table named `testTable`. Each case is `map[string]struct { Args args; Fields fields; Want want }`.
-- Declare `args`, `fields`, and `want` inside the test function, directly below the first `t.Parallel()`. Do not declare them at package level, so each test in a package owns its own.
-- Args is the input. Fields holds dependencies, such as a store or a fixed clock. Want holds the expected value and the error string. The error field is `Error`, not `Err`.
+- One table named `testTable`. Each case has the `Args`, `Fields`, and `Want` it uses. Omit any of the three when the test does not use it.
+- Declare `args`, `fields`, and `want` inside the test function, directly below the first `t.Parallel()`. Omit any of those when the test does not use it. Do not declare them at package level, so each test in a package owns its own.
+- Args is the input. Fields holds dependencies. Want holds the expected value and the error string. The error field is `Error`, not `Err`.
 - Case names are "success - ..." or "error - ...".
 - One act per case. Do not loop the function under test inside a case. Split that into two cases.
 - On failure, compare `err.Error()` with `Want.Error`. On success, `Want.Error` is empty and the act returns a nil error. Fail with `t.Fatalf` when the test cannot continue, and `t.Errorf` otherwise.

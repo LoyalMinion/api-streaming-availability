@@ -16,7 +16,9 @@ Module path: `github.com/LoyalMinion/api-streaming-availability`.
 | `docs/` | Design notes. |
 | `.tool-versions`, `go.mod` | The Go version. Keep them in step. |
 | `Makefile` | `check` and `test`, run locally and in CI. |
-| `Dockerfile`, `docker-compose.yml` | Local image. A static binary on a non-root base. |
+| `Dockerfile`, `docker-compose.yml` | Local image, Prometheus, and Grafana. Host ports are assigned by Docker. |
+| `prometheus/prometheus.yml` | Scrapes `GET /metrics` from the local API. The series are stored in a Compose volume. |
+| `grafana/` | Prometheus datasource for the local Grafana. Dashboards are configured there, not in this repo. |
 | `.github/workflows/ci.yml` | Pull requests run `make check` and `make test`. `main` then calls the Render deploy hook. |
 | `render.yaml` | The Render web service. Auto-deploy is off. |
 
@@ -25,7 +27,7 @@ Module path: `github.com/LoyalMinion/api-streaming-availability`.
 - Imports point inward: `main` imports `config`, `server`, and `httpapi`. `httpapi` imports `store`. `server` does not import `httpapi`, and `store` does not import `httpapi` or `net/http`.
 - Store types carry no JSON tags. `httpapi` converts them to response types.
 - Add a package for a responsibility, not for one function.
-- Whether metrics get their own listener is not decided.
+- Metrics are `GET /metrics` on the same listener. The host exposes one port.
 
 ## Constraints
 
@@ -87,7 +89,7 @@ Read the skill that fits the task before editing:
 ## Testing
 
 - Tests live next to the package they cover, in an external `_test` package.
-- Use a table named `testTable` with `Args`, `Fields`, and `Want`.
+- Use a table named `testTable` with `Args`, `Fields`, and `Want`. Omit any of the three when the test does not use it.
 - Call `t.Parallel` on the test and on each `t.Run` when the cases do not share mutable state that would race.
 - Exercise HTTP with `net/http/httptest`.
 - Case shape is defined in `.cursor/skills/write-test`.
