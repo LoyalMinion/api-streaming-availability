@@ -39,12 +39,10 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("GET /health", a.health)
 	mux.Handle("GET /metrics", promhttp.HandlerFor(a.reg, promhttp.HandlerOpts{}))
 
-	return promhttp.InstrumentHandlerDuration(a.requests, mux, promhttp.WithLabelFromRequest("pattern", func(r *http.Request) string {
-		if r.Pattern == "" {
-			return "unmatched"
-		}
-		return r.Pattern
-	}))
+	return chain(mux,
+		logRequests(a.logger),
+		recordDuration(a.requests),
+	)
 }
 
 func (a *API) health(w http.ResponseWriter, _ *http.Request) {
