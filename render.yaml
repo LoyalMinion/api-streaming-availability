@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: api-streaming-availability
+    runtime: go
+    plan: free
+    branch: main
+    buildCommand: >-
+      CGO_ENABLED=0 go build -trimpath -ldflags "-X main.revision=$RENDER_GIT_COMMIT" -o api-streaming-availability ./cmd/api-streaming-availability
+    startCommand: ./api-streaming-availability
+    healthCheckPath: /health
+    autoDeployTrigger: off

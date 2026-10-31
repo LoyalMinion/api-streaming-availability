@@ -17,6 +17,8 @@ Module path: `github.com/LoyalMinion/api-streaming-availability`.
 | `.tool-versions`, `go.mod` | The Go version. Keep them in step. |
 | `Makefile` | `check` and `test`, run locally and in CI. |
 | `Dockerfile`, `docker-compose.yml` | Local image. A static binary on a non-root base. |
+| `.github/workflows/ci.yml` | Pull requests run `make check` and `make test`. `main` then calls the Render deploy hook. |
+| `render.yaml` | The Render web service. Auto-deploy is off. |
 
 - `main` only wires. It reads config, builds each dependency, and passes it to a constructor.
 - Only `internal/config` reads environment variables.
